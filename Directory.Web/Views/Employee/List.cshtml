@@ -1,0 +1,74 @@
+﻿@using Directory.Web.Models.Employee;
+@using PagedList;
+@using PagedList.Mvc;
+@model StaticPagedList<EmployeeViewModel>
+@*@model IEnumerable<EmployeeViewModel>*@
+
+@{
+    /**/
+
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Список</h2>
+
+<p>
+    @Html.ActionLink("Добавить", "Create")
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="4">
+                @using (Html.BeginForm("List", "Employee", FormMethod.Get))
+                {
+                    <p>
+                        Поиск: @Html.TextBox("terms", ViewBag.FilterValue as string)
+                        <input type="submit" value="Найти" />
+                    </p>
+                }
+            </th>
+        </tr>
+    </thead>
+    <tr>
+        <th>
+            @Html.ActionLink("Имя", "List", new { sortField = "FullName", sortDist = (ViewBag.SortDist == "Desc" ? "Asc" : "Desc"), terms = ViewBag.Terms })
+        </th>
+        <th>
+            @Html.ActionLink("Номер телефона", "List", new { sortField = "PhoneNumber", sortDist = (ViewBag.SortDist == "Desc" ? "Asc" : "Desc"), terms = ViewBag.Terms })
+        </th>
+        <th>
+            @Html.ActionLink("Email", "List", new { sortField = "Email", sortDist = (ViewBag.SortDist == "Desc" ? "Asc" : "Desc"), terms = ViewBag.Terms })
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.FullName, "Details", new { Uid = item.Uid })
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhoneNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.ActionLink("Редактировать", "Update", new { uid = item.Uid }) |
+                @Html.ActionLink("Удалить", "Delete", new { Uid = item.Uid })
+            </td>
+        </tr>
+    }
+    <tfoot>
+        <tr>
+            <td colspan="4">
+                Страница @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) из @Model.PageCount
+                @Html.PagedListPager(Model, page => Url.Action("List", new { page, sortField = ViewBag.SortField, sortDist = ViewBag.SortDist, terms = ViewBag.Terms }))
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+
