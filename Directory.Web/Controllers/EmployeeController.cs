@@ -93,18 +93,18 @@
         [HttpPost]
         public async Task<ActionResult> Update(EmployeeViewModel request)
         {
+            var employee = await employeeService.GetByUid((Guid)request.Uid);
+
+            if (employee == null)
+                ModelState.AddModelError("Uid", String.Format("Сотрудника с таким идентификатором нету: {0}.", request.Uid));
+
             var model = await employeeService.GetByEmail(request.Email);
 
-            if (model.Item1.Any())
+            if (model.Item1.Where(x => x.Uid != request.Uid).Any())
                 ModelState.AddModelError("Email", "Пользователь с такой почтой уже есть.");
 
             if (ModelState.IsValid)
             {
-                var employee = await employeeService.GetByUid((Guid)request.Uid);
-
-                if (employee == null)
-                    throw new Exception(String.Format("Сотрудника с таким идентификатором нету: {0}.", request.Uid));
-
                 EmployeeMapper.Map(request, employee);
 
                 await employeeService.Update(employee);
